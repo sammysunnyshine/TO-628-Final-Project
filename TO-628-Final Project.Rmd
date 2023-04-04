@@ -37,7 +37,8 @@ spot$track <- NULL
 
 spot$artist <- as.factor(spot$artist)
 
-# These factors have WAY too many levels - we need to fix (same problem as movies)
+# This factor has WAY too many levels - we need to fix (same problem as movies)
+
 # There are no NA values
 
 str(spot)
