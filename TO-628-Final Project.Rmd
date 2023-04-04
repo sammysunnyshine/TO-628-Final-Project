@@ -1,0 +1,17 @@
+---
+title: "Final Project"
+author: "Sammy Hedrick"
+date: "4/4/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Clean and Load Data
+```{r}
+cont <- read.csv("cmc_data.csv")
+
+```
+
