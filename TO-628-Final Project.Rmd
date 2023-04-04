@@ -1,8 +1,15 @@
 ---
-title: "Final Project"
-author: "Team Hedrick"
+title: "TO 628 Final Project: Spotify Hits Data"
+author: "Team 8: MBAi"
 date: "4/4/2023"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: readable
+    highlight: tango
+    code_folding: hide
 ---
 
 
@@ -12,16 +19,28 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Intermediate deliverable
 
-## 0. Link to GitHub repo
+## Link to GitHub repo
 
-## 1. Dataset
+## Dataset Details
 
-## 2. Business question
+## Business Question
 
-## 3. Clean data and preliminary exploration
+## Read and Clean Data
 
 ```{r}
 spot <- read.csv("spotify_hits.csv")
 
+str(spot)
+summary(spot)
+
+
+```
+
+## Test and Train
+```{r}
+set.seed(12345)
+test_set <- sample(1:nrow(spot), 0.5*nrow(spot))
+spot_test <- spot[test_set, ]
+spot_train <- spot[-test_set, ]
 ```
 
