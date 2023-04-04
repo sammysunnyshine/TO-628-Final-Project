@@ -1,6 +1,6 @@
 ---
 title: "Final Project"
-author: "Sammy Hedrick"
+author: "Team Hedrick"
 date: "4/4/2023"
 output: html_document
 ---
