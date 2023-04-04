@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Intermediate deliverable
+
 ## 0. Link to GitHub repo
 
 ## 1. Dataset
@@ -18,6 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## 2. Business question
 
 ## 3. Clean data and preliminary exploration
+
 ```{r}
 spot <- read.csv("spotify_hits.csv")
 
