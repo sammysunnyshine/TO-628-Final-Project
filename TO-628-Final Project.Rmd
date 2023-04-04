@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Clean and Load Data
 ```{r}
-cont <- read.csv("cmc_data.csv")
+spot <- read.csv("spotify_hits.csv")
 
 ```
 
