@@ -5,6 +5,7 @@ date: "4/4/2023"
 output: 
   html_document:
     toc: true
+    toc_float: true
     toc_depth: 3
     number_sections: true
     theme: readable
@@ -26,27 +27,49 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Business Question
 
 ## Read and Clean Data
-
 ```{r}
 spot <- read.csv("spotify_hits.csv")
+
+spot$uri <- NULL
+
+spot$track <- as.factor(spot$track)
+spot$artist <- as.factor(spot$artist)
+
+# These factors have WAY too many levels - we need to fix (same problem as movies)
+# There are no NA values
 
 str(spot)
 summary(spot)
 
+```
+
+## Create Dummy Variables
+```{r}
+spot_mm <- as.data.frame(model.matrix(~.-1, data = spot))
+# "-1" removes the intercept column
 
 ```
+
+## Shuffle the Dataset
+```{r}
+spot_mm <- spot_mm[sample(1:nrow(spot_mm)), ]
+```
+
 
 ## Split Test and Train
 ```{r}
 set.seed(12345)
-test_set <- sample(1:nrow(spot), 0.5*nrow(spot))
-spot_test <- spot[test_set, ]
-spot_train <- spot[-test_set, ]
+test_set <- sample(1:nrow(spot_mm), 0.5*nrow(spot_mm))
+spot_test <- spot_mm[test_set, ]
+spot_train <- spot_mm[-test_set, ]
+
 ```
 
-## Build Logistic Regression Model
+Created spot_test and spot_train with a 50/50 random sample.
+
+## Build Regression Model
 ```{r}
+model_lr <- glm(target ~ ., family = "binomial", data = spot_train)
+summary(model_lr)
 
 ```
-
-
