@@ -5,11 +5,19 @@ date: "4/4/2023"
 output: html_document
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Clean and Load Data
+# Intermediate deliverable
+## 0. Link to GitHub repo
+
+## 1. Dataset
+
+## 2. Business question
+
+## 3. Clean data and preliminary exploration
 ```{r}
 spot <- read.csv("spotify_hits.csv")
 
