@@ -36,11 +36,17 @@ summary(spot)
 
 ```
 
-## Test and Train
+## Split Test and Train
 ```{r}
 set.seed(12345)
 test_set <- sample(1:nrow(spot), 0.5*nrow(spot))
 spot_test <- spot[test_set, ]
 spot_train <- spot[-test_set, ]
 ```
+
+## Build Logistic Regression Model
+```{r}
+
+```
+
 
