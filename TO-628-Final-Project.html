@@ -369,11 +369,20 @@ div.tocify {
 <h2><span class="header-section-number">1.4</span> Read and Clean Data</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>spot <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;spotify_hits.csv&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(spot)</span></code></pre></div>
-<pre><code>## &#39;data.frame&#39;:    5872 obs. of  19 variables:
-##  $ track           : chr  &quot;Lucky Man&quot; &quot;On The Hotline&quot; &quot;Clouds Of Dementia&quot; &quot;Heavy Metal, Raise Hell!&quot; ...
-##  $ artist          : chr  &quot;Montgomery Gentry&quot; &quot;Pretty Ricky&quot; &quot;Candlemass&quot; &quot;Zwartketterij&quot; ...
-##  $ uri             : chr  &quot;spotify:track:4GiXBCUF7H6YfNQsnBRIzl&quot; &quot;spotify:track:1zyqZONW985Cs4osz9wlsu&quot; &quot;spotify:track:6cHZf7RbxXCKwEkgAZT4mY&quot; &quot;spotify:track:2IjBPp2vMeX7LggzRN3iSX&quot; ...
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>spot<span class="sc">$</span>uri <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Because tracks are essentially individual IDs, I&#39;m deleting that field</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>spot<span class="sc">$</span>track <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>spot<span class="sc">$</span>artist <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(spot<span class="sc">$</span>artist)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># This factor has WAY too many levels - we need to fix (same problem as movies)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># There are no NA values</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(spot)</span></code></pre></div>
+<pre><code>## &#39;data.frame&#39;:    5872 obs. of  17 variables:
+##  $ artist          : Factor w/ 2920 levels &quot;&#39;In The Heights&#39; Original Broadway Company&quot;,..: 1800 2069 443 2920 297 2382 317 83 2661 2241 ...
 ##  $ danceability    : num  0.578 0.704 0.162 0.188 0.63 0.726 0.365 0.726 0.481 0.647 ...
 ##  $ energy          : num  0.471 0.854 0.836 0.994 0.764 0.837 0.922 0.631 0.786 0.324 ...
 ##  $ key             : int  4 10 9 4 2 11 1 11 10 7 ...
@@ -391,51 +400,70 @@ div.tocify {
 ##  $ sections        : int  13 10 13 9 10 10 4 10 11 16 ...
 ##  $ target          : int  1 1 0 0 1 0 0 1 1 0 ...</code></pre>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(spot)</span></code></pre></div>
-<pre><code>##     track              artist              uri             danceability   
-##  Length:5872        Length:5872        Length:5872        Min.   :0.0588  
-##  Class :character   Class :character   Class :character   1st Qu.:0.4160  
-##  Mode  :character   Mode  :character   Mode  :character   Median :0.5560  
-##                                                           Mean   :0.5429  
-##                                                           3rd Qu.:0.6810  
-##                                                           Max.   :0.9860  
-##      energy              key            loudness            mode       
-##  Min.   :0.000348   Min.   : 0.000   Min.   :-47.327   Min.   :0.0000  
-##  1st Qu.:0.567000   1st Qu.: 2.000   1st Qu.: -8.315   1st Qu.:0.0000  
-##  Median :0.744000   Median : 5.000   Median : -6.042   Median :1.0000  
-##  Mean   :0.694511   Mean   : 5.276   Mean   : -7.449   Mean   :0.6451  
-##  3rd Qu.:0.885000   3rd Qu.: 8.000   3rd Qu.: -4.562   3rd Qu.:1.0000  
-##  Max.   :0.999000   Max.   :11.000   Max.   :  1.137   Max.   :1.0000  
-##   speechiness       acousticness      instrumentalness       liveness     
-##  Min.   :0.02240   Min.   :0.000000   Min.   :0.0000000   Min.   :0.0193  
-##  1st Qu.:0.03617   1st Qu.:0.004553   1st Qu.:0.0000000   1st Qu.:0.0937  
-##  Median :0.05270   Median :0.060300   Median :0.0000218   Median :0.1310  
-##  Mean   :0.09236   Mean   :0.214374   Mean   :0.1509172   Mean   :0.1961  
-##  3rd Qu.:0.10700   3rd Qu.:0.312000   3rd Qu.:0.0472750   3rd Qu.:0.2630  
-##  Max.   :0.95000   Max.   :0.996000   Max.   :0.9980000   Max.   :0.9870  
-##     valence           tempo         duration_ms      time_signature 
-##  Min.   :0.0000   Min.   : 46.76   Min.   :  15920   Min.   :0.000  
-##  1st Qu.:0.2780   1st Qu.: 96.98   1st Qu.: 206813   1st Qu.:4.000  
-##  Median :0.4860   Median :120.00   Median : 238006   Median :4.000  
-##  Mean   :0.4823   Mean   :121.61   Mean   : 258171   Mean   :3.914  
-##  3rd Qu.:0.6870   3rd Qu.:141.50   3rd Qu.: 279160   3rd Qu.:4.000  
-##  Max.   :0.9820   Max.   :213.23   Max.   :4170227   Max.   :5.000  
-##    chorus_hit        sections          target   
-##  Min.   :  0.00   Min.   :  1.00   Min.   :0.0  
-##  1st Qu.: 27.51   1st Qu.:  9.00   1st Qu.:0.0  
-##  Median : 36.04   Median : 10.00   Median :0.5  
-##  Mean   : 40.73   Mean   : 11.06   Mean   :0.5  
-##  3rd Qu.: 47.89   3rd Qu.: 12.00   3rd Qu.:1.0  
-##  Max.   :262.62   Max.   :169.00   Max.   :1.0</code></pre>
+<pre><code>##            artist      danceability        energy              key        
+##  Toby Keith   :  27   Min.   :0.0588   Min.   :0.000348   Min.   : 0.000  
+##  Rascal Flatts:  24   1st Qu.:0.4160   1st Qu.:0.567000   1st Qu.: 2.000  
+##  Tim McGraw   :  24   Median :0.5560   Median :0.744000   Median : 5.000  
+##  Iron Maiden  :  23   Mean   :0.5429   Mean   :0.694511   Mean   : 5.276  
+##  Kenny Chesney:  23   3rd Qu.:0.6810   3rd Qu.:0.885000   3rd Qu.: 8.000  
+##  George Strait:  22   Max.   :0.9860   Max.   :0.999000   Max.   :11.000  
+##  (Other)      :5729                                                       
+##     loudness            mode         speechiness       acousticness     
+##  Min.   :-47.327   Min.   :0.0000   Min.   :0.02240   Min.   :0.000000  
+##  1st Qu.: -8.315   1st Qu.:0.0000   1st Qu.:0.03617   1st Qu.:0.004553  
+##  Median : -6.042   Median :1.0000   Median :0.05270   Median :0.060300  
+##  Mean   : -7.449   Mean   :0.6451   Mean   :0.09236   Mean   :0.214374  
+##  3rd Qu.: -4.562   3rd Qu.:1.0000   3rd Qu.:0.10700   3rd Qu.:0.312000  
+##  Max.   :  1.137   Max.   :1.0000   Max.   :0.95000   Max.   :0.996000  
+##                                                                         
+##  instrumentalness       liveness         valence           tempo       
+##  Min.   :0.0000000   Min.   :0.0193   Min.   :0.0000   Min.   : 46.76  
+##  1st Qu.:0.0000000   1st Qu.:0.0937   1st Qu.:0.2780   1st Qu.: 96.98  
+##  Median :0.0000218   Median :0.1310   Median :0.4860   Median :120.00  
+##  Mean   :0.1509172   Mean   :0.1961   Mean   :0.4823   Mean   :121.61  
+##  3rd Qu.:0.0472750   3rd Qu.:0.2630   3rd Qu.:0.6870   3rd Qu.:141.50  
+##  Max.   :0.9980000   Max.   :0.9870   Max.   :0.9820   Max.   :213.23  
+##                                                                        
+##   duration_ms      time_signature    chorus_hit        sections     
+##  Min.   :  15920   Min.   :0.000   Min.   :  0.00   Min.   :  1.00  
+##  1st Qu.: 206813   1st Qu.:4.000   1st Qu.: 27.51   1st Qu.:  9.00  
+##  Median : 238006   Median :4.000   Median : 36.04   Median : 10.00  
+##  Mean   : 258171   Mean   :3.914   Mean   : 40.73   Mean   : 11.06  
+##  3rd Qu.: 279160   3rd Qu.:4.000   3rd Qu.: 47.89   3rd Qu.: 12.00  
+##  Max.   :4170227   Max.   :5.000   Max.   :262.62   Max.   :169.00  
+##                                                                     
+##      target   
+##  Min.   :0.0  
+##  1st Qu.:0.0  
+##  Median :0.5  
+##  Mean   :0.5  
+##  3rd Qu.:1.0  
+##  Max.   :1.0  
+## </code></pre>
 </div>
-<div id="split-test-and-train" class="section level2" number="1.5">
-<h2><span class="header-section-number">1.5</span> Split Test and Train</h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>test_set <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(spot), <span class="fl">0.5</span><span class="sc">*</span><span class="fu">nrow</span>(spot))</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>spot_test <span class="ot">&lt;-</span> spot[test_set, ]</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>spot_train <span class="ot">&lt;-</span> spot[<span class="sc">-</span>test_set, ]</span></code></pre></div>
+<div id="create-dummy-variables" class="section level2" number="1.5">
+<h2><span class="header-section-number">1.5</span> Create Dummy Variables</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>spot_mm <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">model.matrix</span>(<span class="sc">~</span>.<span class="sc">-</span><span class="dv">1</span>, <span class="at">data =</span> spot))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># &quot;-1&quot; removes the intercept column</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># str(spot_mm)</span></span></code></pre></div>
 </div>
-<div id="build-logistic-regression-model" class="section level2" number="1.6">
-<h2><span class="header-section-number">1.6</span> Build Logistic Regression Model</h2>
+<div id="shuffle-the-dataset" class="section level2" number="1.6">
+<h2><span class="header-section-number">1.6</span> Shuffle the Dataset</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>spot_mm <span class="ot">&lt;-</span> spot_mm[<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(spot_mm)), ]</span></code></pre></div>
+</div>
+<div id="split-test-and-train" class="section level2" number="1.7">
+<h2><span class="header-section-number">1.7</span> Split Test and Train</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_set <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(spot_mm), <span class="fl">0.5</span><span class="sc">*</span><span class="fu">nrow</span>(spot_mm))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>spot_test <span class="ot">&lt;-</span> spot_mm[test_set, ]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>spot_train <span class="ot">&lt;-</span> spot_mm[<span class="sc">-</span>test_set, ]</span></code></pre></div>
+<p>Created spot_test and spot_train with a 50/50 random sample.</p>
+</div>
+<div id="build-regression-model" class="section level2" number="1.8">
+<h2><span class="header-section-number">1.8</span> Build Regression Model</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model_lr &lt;- glm(target ~ ., family = &quot;binomial&quot;, data = spot_train)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># summary(model_lr)</span></span></code></pre></div>
 </div>
 </div>
 

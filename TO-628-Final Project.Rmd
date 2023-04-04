@@ -74,7 +74,7 @@ Created spot_test and spot_train with a 50/50 random sample.
 
 ## Build Regression Model
 ```{r}
-model_lr <- glm(target ~ ., family = "binomial", data = spot_train)
-summary(model_lr)
+# model_lr <- glm(target ~ ., family = "binomial", data = spot_train)
+# summary(model_lr)
 
 ```
