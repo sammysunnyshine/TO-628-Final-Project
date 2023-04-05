@@ -56,6 +56,8 @@ See code comments for details on cleaning.
 spot_mm <- as.data.frame(model.matrix(~.-1, data = spot))
 # "-1" removes the intercept column
 
+# Dummy variables no longer need to be created if we're removing the factors, but this doesn't change anything else
+
 # str(spot_mm)
 
 ```
@@ -83,6 +85,27 @@ model_lr <- glm(target ~ ., family = "binomial", data = spot_train)
 summary(model_lr)
 
 ```
+
+Ten variables are significant: 
+
+- Danceability
+- Energy
+- Loudness
+- Mode
+- Acousticness
+- Instramentalness
+- Valence
+- Tempo
+- Duration_ms
+- Time_signature
+
+Five variables are not significant:
+
+- Key
+- Speechiness
+- Liveness
+- Chorus Hit
+- Sections
 
 ## Predict Test Data
 ```{r}
