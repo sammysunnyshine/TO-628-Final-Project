@@ -38,6 +38,9 @@ spot$track <- NULL
 spot$artist <- as.factor(spot$artist)
 
 # This factor has WAY too many levels - we need to fix (same problem as movies)
+# Deleting the artist field for now to run the model, but we can put it back in
+
+spot$artist <- NULL
 
 # There are no NA values
 
@@ -45,6 +48,8 @@ str(spot)
 summary(spot)
 
 ```
+
+See code comments for details on cleaning.
 
 ## Create Dummy Variables
 ```{r}
@@ -74,7 +79,30 @@ Created spot_test and spot_train with a 50/50 random sample.
 
 ## Build Regression Model
 ```{r}
-# model_lr <- glm(target ~ ., family = "binomial", data = spot_train)
-# summary(model_lr)
+model_lr <- glm(target ~ ., family = "binomial", data = spot_train)
+summary(model_lr)
 
 ```
+
+## Predict Test Data
+```{r}
+spot_pred <- predict(model_lr, spot_test, type = "response")
+
+summary(spot_pred)
+
+spot_bin_pred <- ifelse(spot_pred >= 0.5, 1, 0)
+
+table(spot_bin_pred)
+
+```
+The model predicts that of the `r 1310 + 1626` observations in the test data set, 1626 songs will be hits (`r round(100*1626/(1310+1626),0)` percent) and 1310 songs will be flops (`r round(100*1310/(1310+1626),0)` percent). 
+
+## Evaluate Model
+```{r}
+library(caret)
+confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive = "1")
+
+```
+
+The model has an accuracy of 82.25% and a Kappa of 64.4%.
+
