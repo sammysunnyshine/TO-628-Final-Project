@@ -349,21 +349,49 @@ div.tocify {
 
 <h1 class="title toc-ignore">TO 628 Final Project: Spotify Hits Data</h1>
 <h4 class="author">Team 8: MBAi</h4>
-<h4 class="date">4/4/2023</h4>
+<h4 class="date">4/9/2023</h4>
 
 </div>
 
 
 <div id="intermediate-deliverable" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Intermediate deliverable</h1>
+<h1><span class="header-section-number">1</span> Intermediate Deliverable</h1>
 <div id="link-to-github-repo" class="section level2" number="1.1">
 <h2><span class="header-section-number">1.1</span> Link to GitHub repo</h2>
+<p><a href="https://github.com/sammysunnyshine/TO-628-Final-Project.git" class="uri">https://github.com/sammysunnyshine/TO-628-Final-Project.git</a></p>
 </div>
-<div id="dataset-details" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Dataset Details</h2>
+<div id="data-set-details" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Data Set Details</h2>
+<p><strong>The Spotify Hit Predictor Dataset: 2000-2009</strong></p>
+<p>This data set includes songs on Spotify that were produced between Jan 01, 2000 and Dec 31, 2009. Each song has been scored across a number of variables; these scores are presented along with other details about the songs, such as duration, tempo, etc.</p>
+<p>Variables:</p>
+<ul>
+<li><p>track: The Name of the track.</p></li>
+<li><p>artist: The Name of the Artist.</p></li>
+<li><p>uri: The resource identifier for the track.</p></li>
+<li><p>danceability: Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.</p></li>
+<li><p>energy: Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy.</p></li>
+<li><p>key: The estimated overall key of the track. Integers map to pitches using standard Pitch Class notation. E.g. 0 = C, 1 = C?/D?, 2 = D, and so on. If no key was detected, the value is -1.</p></li>
+<li><p>loudness: The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typical range between -60 and 0 db.</p></li>
+<li><p>mode: Mode indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0.</p></li>
+<li><p>speechiness: Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 1.0 the attribute value. Values above 0.66 describe tracks that are probably made entirely of spoken words. Values between 0.33 and 0.66 describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 0.33 most likely represent music and other non-speech-like tracks.</p></li>
+<li><p>acousticness: A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic. The distribution of values for this feature look like this:</p></li>
+<li><p>instrumentalness: Predicts whether a track contains no vocals. “Ooh” and “aah” sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly “vocal”. The closer the instrumentalness value is to 1.0, the greater likelihood the track contains no vocal content. Values above 0.5 are intended to represent instrumental tracks, but confidence is higher as the value approaches 1.0. The distribution of values for this feature look like this:</p></li>
+<li><p>liveness: Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 0.8 provides strong likelihood that the track is live.</p></li>
+<li><p>valence: A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).</p></li>
+<li><p>tempo: The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration.</p></li>
+<li><p>duration_ms: The duration of the track in milliseconds.</p></li>
+<li><p>time_signature: An estimated overall time signature of a track. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure).</p></li>
+<li><p>chorus_hit: This the the author’s best estimate of when the chorus would start for the track. Its the timestamp of the start of the third section of the track. This feature was extracted from the data received by the API call for Audio Analysis of that particular track.</p></li>
+<li><p>sections: The number of sections the particular track has. This feature was extracted from the data received by the API call for Audio Analysis of that particular track.</p></li>
+<li><p>target: The target variable for the track. It can be either ‘0’ or ‘1’. ‘1’ implies that this song has featured in the weekly list (Issued by Billboards) of Hot-100 tracks in that decade at least once and is therefore a ‘hit’. ‘0’ Implies that the track is a ‘flop’.</p></li>
+</ul>
 </div>
 <div id="business-question" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Business Question</h2>
+<p>Our goal is to build a model to predict which songs will be successful on Spotify, which serves as a proxy for the overall music market.</p>
+<p>This will be extremely useful to artists, managers, producers, and all other parties who have stakes in launching new music. This data set provides a blueprint on how to create a successful song, regardless of genre, and can be used to evaluate existing songs or to write new ones.</p>
+<p><em>Our model will be able to determine with a high level of confidence whether a song will be a “hit” or a “flop.”</em> Investment should be made in the former and not in the latter.</p>
 </div>
 <div id="read-and-clean-data" class="section level2" number="1.4">
 <h2><span class="header-section-number">1.4</span> Read and Clean Data</h2>
@@ -429,8 +457,8 @@ div.tocify {
 ##  Max.   :5.000   Max.   :262.62   Max.   :169.00   Max.   :1.0</code></pre>
 <p>See code comments for details on cleaning. Dummy variables are not needed.</p>
 </div>
-<div id="randomize-the-dataset" class="section level2" number="1.5">
-<h2><span class="header-section-number">1.5</span> Randomize the Dataset</h2>
+<div id="randomize-the-data-set" class="section level2" number="1.5">
+<h2><span class="header-section-number">1.5</span> Randomize the Data Set</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>spot_random <span class="ot">&lt;-</span> spot[<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(spot)), ]</span></code></pre></div>
 </div>
 <div id="normalize-the-data" class="section level2" number="1.6">
@@ -459,34 +487,34 @@ div.tocify {
 ## 
 ## Deviance Residuals: 
 ##     Min       1Q   Median       3Q      Max  
-## -2.9182  -0.5351   0.0000   0.6873   4.0156  
+## -2.6711  -0.5514  -0.0016   0.6921   3.2788  
 ## 
 ## Coefficients:
 ##                   Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)      -15.53040    1.32341 -11.735  &lt; 2e-16 ***
-## danceability       4.88931    0.40114  12.189  &lt; 2e-16 ***
-## energy            -6.16467    0.50635 -12.175  &lt; 2e-16 ***
-## key                0.01767    0.15941   0.111   0.9117    
-## loudness          20.34528    1.51497  13.430  &lt; 2e-16 ***
-## mode               0.59207    0.11113   5.328 9.95e-08 ***
-## speechiness        0.21447    0.50505   0.425   0.6711    
-## acousticness      -2.25454    0.29622  -7.611 2.72e-14 ***
-## instrumentalness  -6.12195    0.56814 -10.776  &lt; 2e-16 ***
-## liveness          -0.68870    0.31485  -2.187   0.0287 *  
-## valence           -0.08204    0.27493  -0.298   0.7654    
-## tempo              0.53635    0.29948   1.791   0.0733 .  
-## duration_ms       -8.10226    5.03750  -1.608   0.1077    
-## time_signature     1.66451    0.78703   2.115   0.0344 *  
-## chorus_hit        -1.60745    0.75009  -2.143   0.0321 *  
-## sections           0.05642    4.55860   0.012   0.9901    
+## (Intercept)      -16.05292    1.39212 -11.531  &lt; 2e-16 ***
+## danceability       4.97286    0.39090  12.722  &lt; 2e-16 ***
+## energy            -6.53854    0.50290 -13.002  &lt; 2e-16 ***
+## key                0.03972    0.15991   0.248   0.8038    
+## loudness          21.45513    1.52091  14.107  &lt; 2e-16 ***
+## mode               0.50146    0.11171   4.489 7.16e-06 ***
+## speechiness        0.06732    0.52066   0.129   0.8971    
+## acousticness      -2.30354    0.30264  -7.612 2.71e-14 ***
+## instrumentalness  -5.75216    0.54995 -10.459  &lt; 2e-16 ***
+## liveness          -0.56741    0.30915  -1.835   0.0665 .  
+## valence           -0.41717    0.27171  -1.535   0.1247    
+## tempo              0.19251    0.30054   0.641   0.5218    
+## duration_ms      -10.16890    5.38971  -1.887   0.0592 .  
+## time_signature     2.00459    0.85755   2.338   0.0194 *  
+## chorus_hit        -1.10865    0.76781  -1.444   0.1488    
+## sections          -2.18497    4.72307  -0.463   0.6436    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
-##     Null deviance: 4070.2  on 2935  degrees of freedom
-## Residual deviance: 2348.9  on 2920  degrees of freedom
-## AIC: 2380.9
+##     Null deviance: 4069.5  on 2935  degrees of freedom
+## Residual deviance: 2367.8  on 2920  degrees of freedom
+## AIC: 2399.8
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
 <p>Nine variables are significant:</p>
@@ -517,13 +545,13 @@ div.tocify {
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(spot_pred)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##  0.0000  0.1347  0.5915  0.5058  0.8156  0.9951</code></pre>
+##  0.0000  0.1097  0.5627  0.4913  0.8045  0.9945</code></pre>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>spot_bin_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(spot_pred <span class="sc">&gt;=</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(spot_bin_pred)</span></code></pre></div>
 <pre><code>## spot_bin_pred
 ##    0    1 
-## 1271 1665</code></pre>
+## 1336 1600</code></pre>
 <p>Based on a 50% prediction threshold, the model predicts that of the 2906 observations in the test data set, 1653 songs will be hits (56 percent) and 1283 songs will be flops (44 percent).</p>
 </div>
 <div id="evaluate-model" class="section level2" number="1.10">
@@ -539,28 +567,28 @@ div.tocify {
 ## 
 ##           Reference
 ## Prediction    0    1
-##          0 1110  161
-##          1  357 1308
-##                                           
-##                Accuracy : 0.8236          
-##                  95% CI : (0.8093, 0.8372)
-##     No Information Rate : 0.5003          
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
-##                                           
-##                   Kappa : 0.6471          
-##                                           
-##  Mcnemar&#39;s Test P-Value : &lt; 2.2e-16       
-##                                           
-##             Sensitivity : 0.8904          
-##             Specificity : 0.7566          
-##          Pos Pred Value : 0.7856          
-##          Neg Pred Value : 0.8733          
-##              Prevalence : 0.5003          
-##          Detection Rate : 0.4455          
-##    Detection Prevalence : 0.5671          
-##       Balanced Accuracy : 0.8235          
-##                                           
-##        &#39;Positive&#39; Class : 1               
+##          0 1133  203
+##          1  313 1287
+##                                         
+##                Accuracy : 0.8243        
+##                  95% CI : (0.81, 0.8379)
+##     No Information Rate : 0.5075        
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16     
+##                                         
+##                   Kappa : 0.648         
+##                                         
+##  Mcnemar&#39;s Test P-Value : 1.599e-06     
+##                                         
+##             Sensitivity : 0.8638        
+##             Specificity : 0.7835        
+##          Pos Pred Value : 0.8044        
+##          Neg Pred Value : 0.8481        
+##              Prevalence : 0.5075        
+##          Detection Rate : 0.4384        
+##    Detection Prevalence : 0.5450        
+##       Balanced Accuracy : 0.8236        
+##                                         
+##        &#39;Positive&#39; Class : 1             
 ## </code></pre>
 <p>The model has an accuracy of 82.43% and a Kappa of 64.74%.</p>
 </div>
