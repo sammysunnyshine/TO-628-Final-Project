@@ -32,48 +32,42 @@ spot <- read.csv("spotify_hits.csv")
 
 spot$uri <- NULL
 
-# Because tracks are essentially individual IDs, I'm deleting that field
+# Delete the tracks field because it's essentially individual IDs
 spot$track <- NULL
 
-spot$artist <- as.factor(spot$artist)
-
-# This factor has WAY too many levels - we need to fix (same problem as movies)
-# Deleting the artist field for now to run the model, but we can put it back in
-
+# Deleting artist - too many unique values
 spot$artist <- NULL
 
 # There are no NA values
+# There is no need to create factors
 
 str(spot)
 summary(spot)
 
 ```
 
-See code comments for details on cleaning.
+See code comments for details on cleaning. Dummy variables are not needed.
 
-## Create Dummy Variables
+## Randomize the Dataset
 ```{r}
-spot_mm <- as.data.frame(model.matrix(~.-1, data = spot))
-# "-1" removes the intercept column
-
-# Dummy variables no longer need to be created if we're removing the factors, but this doesn't change anything else
-
-# str(spot_mm)
-
+spot_random <- spot[sample(1:nrow(spot)), ]
 ```
 
-## Shuffle the Dataset
+## Normalize the Data
 ```{r}
-spot_mm <- spot_mm[sample(1:nrow(spot_mm)), ]
-```
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x)))
+}
 
+spot_norm <- as.data.frame(lapply(spot_random, normalize))
+```
 
 ## Split Test and Train
 ```{r}
 set.seed(12345)
-test_set <- sample(1:nrow(spot_mm), 0.5*nrow(spot_mm))
-spot_test <- spot_mm[test_set, ]
-spot_train <- spot_mm[-test_set, ]
+test_set <- sample(1:nrow(spot_norm), 0.5*nrow(spot_norm))
+spot_test <- spot_norm[test_set, ]
+spot_train <- spot_norm[-test_set, ]
 
 ```
 
@@ -86,7 +80,7 @@ summary(model_lr)
 
 ```
 
-Ten variables are significant: 
+Nine variables are significant: 
 
 - Danceability
 - Energy
@@ -94,16 +88,16 @@ Ten variables are significant:
 - Mode
 - Acousticness
 - Instramentalness
+- Liveness
 - Valence
-- Tempo
-- Duration_ms
 - Time_signature
 
-Five variables are not significant:
+Six variables are not significant:
 
 - Key
 - Speechiness
-- Liveness
+- Tempo
+- Duration_ms
 - Chorus Hit
 - Sections
 
@@ -118,7 +112,7 @@ spot_bin_pred <- ifelse(spot_pred >= 0.5, 1, 0)
 table(spot_bin_pred)
 
 ```
-The model predicts that of the `r 1310 + 1626` observations in the test data set, 1626 songs will be hits (`r round(100*1626/(1310+1626),0)` percent) and 1310 songs will be flops (`r round(100*1310/(1310+1626),0)` percent). 
+Based on a 50% prediction threshold, the model predicts that of the `r 1253 + 1653` observations in the test data set, 1653 songs will be hits (`r round(100*1653/(1283+1653),0)` percent) and 1283 songs will be flops (`r round(100*1283/(1283+1653),0)` percent). 
 
 ## Evaluate Model
 ```{r}
@@ -127,5 +121,5 @@ confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive 
 
 ```
 
-The model has an accuracy of 82.25% and a Kappa of 64.4%.
+The model has an accuracy of 82.43% and a Kappa of 64.74%.
 

@@ -371,19 +371,16 @@ div.tocify {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>spot<span class="sc">$</span>uri <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Because tracks are essentially individual IDs, I&#39;m deleting that field</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Delete the tracks field because it&#39;s essentially individual IDs</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>spot<span class="sc">$</span>track <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>spot<span class="sc">$</span>artist <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(spot<span class="sc">$</span>artist)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># This factor has WAY too many levels - we need to fix (same problem as movies)</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Deleting the artist field for now to run the model, but we can put it back in</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>spot<span class="sc">$</span>artist <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># There are no NA values</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(spot)</span></code></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Deleting artist - too many unique values</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>spot<span class="sc">$</span>artist <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># There are no NA values</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># There is no need to create factors</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(spot)</span></code></pre></div>
 <pre><code>## &#39;data.frame&#39;:    5872 obs. of  16 variables:
 ##  $ danceability    : num  0.578 0.704 0.162 0.188 0.63 0.726 0.365 0.726 0.481 0.647 ...
 ##  $ energy          : num  0.471 0.854 0.836 0.994 0.764 0.837 0.922 0.631 0.786 0.324 ...
@@ -430,27 +427,26 @@ div.tocify {
 ##  Mean   :3.914   Mean   : 40.73   Mean   : 11.06   Mean   :0.5  
 ##  3rd Qu.:4.000   3rd Qu.: 47.89   3rd Qu.: 12.00   3rd Qu.:1.0  
 ##  Max.   :5.000   Max.   :262.62   Max.   :169.00   Max.   :1.0</code></pre>
-<p>See code comments for details on cleaning.</p>
+<p>See code comments for details on cleaning. Dummy variables are not needed.</p>
 </div>
-<div id="create-dummy-variables" class="section level2" number="1.5">
-<h2><span class="header-section-number">1.5</span> Create Dummy Variables</h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>spot_mm <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">model.matrix</span>(<span class="sc">~</span>.<span class="sc">-</span><span class="dv">1</span>, <span class="at">data =</span> spot))</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># &quot;-1&quot; removes the intercept column</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Dummy variables no longer need to be created if we&#39;re removing the factors, but this doesn&#39;t change anything else</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># str(spot_mm)</span></span></code></pre></div>
+<div id="randomize-the-dataset" class="section level2" number="1.5">
+<h2><span class="header-section-number">1.5</span> Randomize the Dataset</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>spot_random <span class="ot">&lt;-</span> spot[<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(spot)), ]</span></code></pre></div>
 </div>
-<div id="shuffle-the-dataset" class="section level2" number="1.6">
-<h2><span class="header-section-number">1.6</span> Shuffle the Dataset</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>spot_mm <span class="ot">&lt;-</span> spot_mm[<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(spot_mm)), ]</span></code></pre></div>
+<div id="normalize-the-data" class="section level2" number="1.6">
+<h2><span class="header-section-number">1.6</span> Normalize the Data</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>normalize <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> ((x <span class="sc">-</span> <span class="fu">min</span>(x)) <span class="sc">/</span> (<span class="fu">max</span>(x) <span class="sc">-</span> <span class="fu">min</span>(x)))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>spot_norm <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(spot_random, normalize))</span></code></pre></div>
 </div>
 <div id="split-test-and-train" class="section level2" number="1.7">
 <h2><span class="header-section-number">1.7</span> Split Test and Train</h2>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_set <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(spot_mm), <span class="fl">0.5</span><span class="sc">*</span><span class="fu">nrow</span>(spot_mm))</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>spot_test <span class="ot">&lt;-</span> spot_mm[test_set, ]</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>spot_train <span class="ot">&lt;-</span> spot_mm[<span class="sc">-</span>test_set, ]</span></code></pre></div>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_set <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(spot_norm), <span class="fl">0.5</span><span class="sc">*</span><span class="fu">nrow</span>(spot_norm))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>spot_test <span class="ot">&lt;-</span> spot_norm[test_set, ]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>spot_train <span class="ot">&lt;-</span> spot_norm[<span class="sc">-</span>test_set, ]</span></code></pre></div>
 <p>Created spot_test and spot_train with a 50/50 random sample.</p>
 </div>
 <div id="build-regression-model" class="section level2" number="1.8">
@@ -463,37 +459,37 @@ div.tocify {
 ## 
 ## Deviance Residuals: 
 ##     Min       1Q   Median       3Q      Max  
-## -2.6885  -0.5392  -0.0004   0.6958   3.9182  
+## -2.9182  -0.5351   0.0000   0.6873   4.0156  
 ## 
 ## Coefficients:
-##                    Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)       3.118e+00  9.140e-01   3.412 0.000645 ***
-## danceability      5.749e+00  4.462e-01  12.883  &lt; 2e-16 ***
-## energy           -6.306e+00  5.111e-01 -12.337  &lt; 2e-16 ***
-## key              -2.113e-03  1.446e-02  -0.146 0.883829    
-## loudness          4.667e-01  3.279e-02  14.232  &lt; 2e-16 ***
-## mode              5.646e-01  1.109e-01   5.092 3.55e-07 ***
-## speechiness      -4.592e-02  5.656e-01  -0.081 0.935295    
-## acousticness     -1.794e+00  3.025e-01  -5.929 3.04e-09 ***
-## instrumentalness -5.500e+00  4.900e-01 -11.226  &lt; 2e-16 ***
-## liveness         -3.936e-01  3.196e-01  -1.231 0.218183    
-## valence          -4.460e-01  2.800e-01  -1.593 0.111160    
-## tempo             3.274e-03  1.810e-03   1.809 0.070475 .  
-## duration_ms      -1.396e-06  1.214e-06  -1.150 0.250302    
-## time_signature    5.103e-01  1.710e-01   2.984 0.002849 ** 
-## chorus_hit       -1.855e-03  2.876e-03  -0.645 0.518922    
-## sections         -2.022e-03  2.760e-02  -0.073 0.941603    
+##                   Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)      -15.53040    1.32341 -11.735  &lt; 2e-16 ***
+## danceability       4.88931    0.40114  12.189  &lt; 2e-16 ***
+## energy            -6.16467    0.50635 -12.175  &lt; 2e-16 ***
+## key                0.01767    0.15941   0.111   0.9117    
+## loudness          20.34528    1.51497  13.430  &lt; 2e-16 ***
+## mode               0.59207    0.11113   5.328 9.95e-08 ***
+## speechiness        0.21447    0.50505   0.425   0.6711    
+## acousticness      -2.25454    0.29622  -7.611 2.72e-14 ***
+## instrumentalness  -6.12195    0.56814 -10.776  &lt; 2e-16 ***
+## liveness          -0.68870    0.31485  -2.187   0.0287 *  
+## valence           -0.08204    0.27493  -0.298   0.7654    
+## tempo              0.53635    0.29948   1.791   0.0733 .  
+## duration_ms       -8.10226    5.03750  -1.608   0.1077    
+## time_signature     1.66451    0.78703   2.115   0.0344 *  
+## chorus_hit        -1.60745    0.75009  -2.143   0.0321 *  
+## sections           0.05642    4.55860   0.012   0.9901    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
-##     Null deviance: 4070.0  on 2935  degrees of freedom
-## Residual deviance: 2356.7  on 2920  degrees of freedom
-## AIC: 2388.7
+##     Null deviance: 4070.2  on 2935  degrees of freedom
+## Residual deviance: 2348.9  on 2920  degrees of freedom
+## AIC: 2380.9
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
-<p>Ten variables are significant:</p>
+<p>Nine variables are significant:</p>
 <ul>
 <li>Danceability</li>
 <li>Energy</li>
@@ -501,16 +497,16 @@ div.tocify {
 <li>Mode</li>
 <li>Acousticness</li>
 <li>Instramentalness</li>
+<li>Liveness</li>
 <li>Valence</li>
-<li>Tempo</li>
-<li>Duration_ms</li>
 <li>Time_signature</li>
 </ul>
-<p>Five variables are not significant:</p>
+<p>Six variables are not significant:</p>
 <ul>
 <li>Key</li>
 <li>Speechiness</li>
-<li>Liveness</li>
+<li>Tempo</li>
+<li>Duration_ms</li>
 <li>Chorus Hit</li>
 <li>Sections</li>
 </ul>
@@ -521,14 +517,14 @@ div.tocify {
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(spot_pred)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##  0.0000  0.1332  0.5749  0.5021  0.8198  0.9949</code></pre>
+##  0.0000  0.1347  0.5915  0.5058  0.8156  0.9951</code></pre>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>spot_bin_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(spot_pred <span class="sc">&gt;=</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(spot_bin_pred)</span></code></pre></div>
 <pre><code>## spot_bin_pred
 ##    0    1 
-## 1323 1613</code></pre>
-<p>The model predicts that of the 2936 observations in the test data set, 1626 songs will be hits (55 percent) and 1310 songs will be flops (45 percent).</p>
+## 1271 1665</code></pre>
+<p>Based on a 50% prediction threshold, the model predicts that of the 2906 observations in the test data set, 1653 songs will be hits (56 percent) and 1283 songs will be flops (44 percent).</p>
 </div>
 <div id="evaluate-model" class="section level2" number="1.10">
 <h2><span class="header-section-number">1.10</span> Evaluate Model</h2>
@@ -543,30 +539,30 @@ div.tocify {
 ## 
 ##           Reference
 ## Prediction    0    1
-##          0 1128  195
-##          1  329 1284
+##          0 1110  161
+##          1  357 1308
 ##                                           
-##                Accuracy : 0.8215          
-##                  95% CI : (0.8072, 0.8352)
-##     No Information Rate : 0.5037          
+##                Accuracy : 0.8236          
+##                  95% CI : (0.8093, 0.8372)
+##     No Information Rate : 0.5003          
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
 ##                                           
-##                   Kappa : 0.6428          
+##                   Kappa : 0.6471          
 ##                                           
-##  Mcnemar&#39;s Test P-Value : 6.242e-09       
+##  Mcnemar&#39;s Test P-Value : &lt; 2.2e-16       
 ##                                           
-##             Sensitivity : 0.8682          
-##             Specificity : 0.7742          
-##          Pos Pred Value : 0.7960          
-##          Neg Pred Value : 0.8526          
-##              Prevalence : 0.5037          
-##          Detection Rate : 0.4373          
-##    Detection Prevalence : 0.5494          
-##       Balanced Accuracy : 0.8212          
+##             Sensitivity : 0.8904          
+##             Specificity : 0.7566          
+##          Pos Pred Value : 0.7856          
+##          Neg Pred Value : 0.8733          
+##              Prevalence : 0.5003          
+##          Detection Rate : 0.4455          
+##    Detection Prevalence : 0.5671          
+##       Balanced Accuracy : 0.8235          
 ##                                           
 ##        &#39;Positive&#39; Class : 1               
 ## </code></pre>
-<p>The model has an accuracy of 82.25% and a Kappa of 64.4%.</p>
+<p>The model has an accuracy of 82.43% and a Kappa of 64.74%.</p>
 </div>
 </div>
 
