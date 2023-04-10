@@ -72,11 +72,19 @@ Variables:
 
 ## Business Question
 
-Our goal is to build a model to predict which songs will be successful on Spotify, which serves as a proxy for the overall music market.
+What makes a song turn into a "hit" or a "flop"? Our goal is to build a model that predicts which songs will be successful on Spotify, which serves as a proxy for the overall music market.
 
-This will be extremely useful to artists, managers, producers, and all other parties who have stakes in launching new music. This data set provides a blueprint on how to create a successful song, regardless of genre, and can be used to evaluate existing songs or to write new ones.
+This will be extremely useful to artists, managers, producers, and all other parties who have stakes in launching new music. Our model will help identify what characteristics make a song successful, regardless of genre, and help evaluate existing songs and new songs in production. Why does this matter?
+- Maximizing ROI: creators, their talent managers, and music labels can better prioritize to which songs they should allocate more resources, e.g. which songs to record music videos for and include in an album 
+- Artist development: music labels and talent managers can identify and develop emerging talent if they have early indications that their songs have a high potential to become hits
+- Marketing strategies: Many artists are savvy marketers and strategically order and time song releases (e.g. Taylor Swift is well-known for that). A good prediction model could supplement their instincts and business acumen in their decision-making
+- Streaming services and payment models: Given there have been ongoing discussions in the news cycle around payment models used by streaming services like Spotify and Apple Music, with the latter being criticized for inadequately compensating creators, prediction models for song's success in the market could help open the door for alternative payment arrangements. Currently, a song could easily take $1K to produce, yet 100K streams could results in approx. $400 or less of a paycheck. 
 
-*Our model will be able to determine with a high level of confidence whether a song will be a "hit" or a "flop."* Investment should be made in the former and not in the latter.
+*Our model will be able to determine with a high level of confidence whether a song will be a "hit" or a "flop."* Being able to predict if a song would be a hit can help stakeholders in the music industry make data-driven decisions, optimize their investments into new music and music videos, and ultimately increase revenue.
+
+*Sources:* 
+https://www.usatoday.com/story/life/2022/10/22/how-much-per-spotify-stream/8094437001/
+https://dittomusic.com/en/blog/how-much-does-spotify-pay-per-stream/
 
 ## Read and Clean Data
 ```{r}
