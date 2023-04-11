@@ -205,6 +205,10 @@ spot2$artist_popularity[spot2$artist %in% criteria_vec] <- 1
 # Deleting artist - too many unique values
 spot2$artist <- NULL
 
+#Try running without popular artists included
+#spot2 <- spot2[spot2$artist_popularity == 0, ]
+#spot2$artist_popularity <-NULL
+
 str(spot2)
 summary(spot2)
 
