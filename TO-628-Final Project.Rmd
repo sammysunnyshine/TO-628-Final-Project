@@ -187,3 +187,21 @@ confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive 
 
 The model has an accuracy of 82.43% and a Kappa of 64.74%.
 
+## Sensitivity analysis
+```{r}
+spot2 <- read.csv("spotify_hits.csv")
+
+spot2$uri <- NULL
+
+# Delete the tracks field because it's essentially individual IDs
+spot2$track <- NULL
+
+# creating dummy variable to distinguish popular and less well-known artists
+
+# There are no NA values
+# There is no need to create factors
+
+str(spot2)
+summary(spot2)
+
+```
