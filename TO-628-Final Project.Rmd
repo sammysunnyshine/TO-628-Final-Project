@@ -193,6 +193,9 @@ spot2 <- read.csv("spotify_hits.csv")
 criteria <- read.csv("popular_artists.csv", header = FALSE)
 criteria_vec <- as.character(criteria$V1)
 
+#Explore top artists
+head(sort(table(spot2$artist), decreasing = TRUE), 20)
+
 spot2$uri <- NULL
 
 # Delete the tracks field because it's essentially individual IDs
