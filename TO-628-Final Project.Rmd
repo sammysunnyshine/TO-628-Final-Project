@@ -190,6 +190,8 @@ The model has an accuracy of 82.43% and a Kappa of 64.74%.
 ## Sensitivity analysis
 ```{r}
 spot2 <- read.csv("spotify_hits.csv")
+criteria <- read.csv("popular_artists.csv", header = FALSE)
+criteria_vec <- as.character(criteria$artist)
 
 spot2$uri <- NULL
 
@@ -197,6 +199,8 @@ spot2$uri <- NULL
 spot2$track <- NULL
 
 # creating dummy variable to distinguish popular and less well-known artists
+spot2$artist_popularity <- 0
+spot2$artist_popularity[spot2$artist %in% criteria_vec] <- 1
 
 # There are no NA values
 # There is no need to create factors
