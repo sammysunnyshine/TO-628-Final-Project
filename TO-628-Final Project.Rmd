@@ -202,10 +202,62 @@ spot2$track <- NULL
 spot2$artist_popularity <- 0
 spot2$artist_popularity[spot2$artist %in% criteria_vec] <- 1
 
-# There are no NA values
-# There is no need to create factors
+# Deleting artist - too many unique values
+spot2$artist <- NULL
 
 str(spot2)
 summary(spot2)
+
+```
+
+## Randomize the Data Set
+```{r}
+spot2_random <- spot2[sample(1:nrow(spot2)), ]
+```
+
+## Normalize the Data
+```{r}
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x)))
+}
+
+spot2_norm <- as.data.frame(lapply(spot2_random, normalize))
+```
+
+## Split Test and Train
+```{r}
+set.seed(12345)
+test_set <- sample(1:nrow(spot2_norm), 0.5*nrow(spot2_norm))
+spot_test <- spot2_norm[test_set, ]
+spot_train <- spot2_norm[-test_set, ]
+
+```
+
+Created spot_test and spot_train with a 50/50 random sample.
+
+## Build Regression Model
+```{r}
+model_lr <- glm(target ~ ., family = "binomial", data = spot_train)
+summary(model_lr)
+
+```
+
+## Predict Test Data
+```{r}
+spot_pred <- predict(model_lr, spot_test, type = "response")
+
+summary(spot_pred)
+
+spot_bin_pred <- ifelse(spot_pred >= 0.5, 1, 0)
+
+table(spot_bin_pred)
+
+```
+ 
+
+## Evaluate Model
+```{r}
+library(caret)
+confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive = "1")
 
 ```
