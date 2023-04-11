@@ -191,7 +191,7 @@ The model has an accuracy of 82.43% and a Kappa of 64.74%.
 ```{r}
 spot2 <- read.csv("spotify_hits.csv")
 criteria <- read.csv("popular_artists.csv", header = FALSE)
-criteria_vec <- as.character(criteria$artist)
+criteria_vec <- as.character(criteria$V1)
 
 spot2$uri <- NULL
 
