@@ -268,3 +268,6 @@ library(caret)
 confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive = "1")
 
 ```
+
+
+## MIchael Test
