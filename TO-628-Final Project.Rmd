@@ -176,7 +176,7 @@ spot_bin_pred <- ifelse(spot_pred >= 0.5, 1, 0)
 table(spot_bin_pred)
 
 ```
-Based on a 50% prediction threshold, the model predicts that of the `r 1253 + 1653` observations in the test data set, 1653 songs will be hits (`r round(100*1653/(1283+1653),0)` percent) and 1283 songs will be flops (`r round(100*1283/(1283+1653),0)` percent). 
+Based on a 50% prediction threshold, the model predicts that of the `r 1253 + 1653` observations in the test data set, approximately `r round(100*1653/(1283+1653),0)` percent will be hits. 
 
 ## Evaluate Model
 ```{r}
@@ -233,6 +233,8 @@ normalize <- function(x) {
 }
 
 spot_uk_norm <- as.data.frame(lapply(spot_uk_random, normalize))
+
+summary(spot_uk_norm)
 ```
 
 ## Split Test and Train
@@ -242,16 +244,14 @@ test_set_uk <- sample(1:nrow(spot_uk_norm), 0.5*nrow(spot_uk_norm))
 spot_test_uk <- spot_uk_norm[test_set_uk, ]
 spot_train_uk <- spot_uk_norm[-test_set_uk, ]
 
-spot_test_uk_nl <- spot_uk_norm[test_set_uk, -match("target", names(spot_uk_norm))]
-spot_train_uk_nl <- spot_uk_norm[-test_set_uk, -match("target", names(spot_uk_norm))]
+summary(spot_test_uk)
 
-spot_test_uk_nl
+spot_test_uk_nl <- spot_test_uk[ , -match("target", names(spot_uk_norm))]
+spot_train_uk_nl <- spot_train_uk[ , -match("target", names(spot_uk_norm))]
 
 # Now the response (aka Labels) - only the target column
-spot_test_uk_labels <- spot_uk_norm[test_set, "target"]
-spot_train_uk_labels <- spot_uk_norm[-test_set, "target"]
-
-spot_test_uk_labels
+spot_test_uk_labels <- spot_test_uk[, "target"]
+spot_train_uk_labels <- spot_train_uk[ , "target"]
 
 ```
 
@@ -277,20 +277,20 @@ Fewer variables are significant for unknown artists, but they reach higher confi
 
 ## Predict Test Data
 ```{r}
-spot_pred_uk <- predict(model_lr_uk, spot_test_uk, type = "response")
+pred_lr_uk <- predict(model_lr_uk, spot_test_uk, type = "response")
 
-summary(spot_pred_uk)
+summary(pred_lr_uk)
 
-spot_bin_pred_uk <- ifelse(spot_pred_uk >= 0.5, 1, 0)
+bin_pred_lr_uk <- ifelse(pred_lr_uk >= 0.5, 1, 0)
 
-table(spot_bin_pred_uk)
+table(bin_pred_lr_uk)
 
 ```
 
 ## Evaluate Model
 ```{r}
 library(caret)
-confusionMatrix(as.factor(spot_bin_pred_uk), as.factor(spot_test_uk$target), positive = "1")
+confusionMatrix(as.factor(bin_pred_lr_uk), as.factor(spot_test_uk$target), positive = "1")
 
 ```
 
@@ -310,127 +310,133 @@ model_knn_uk <- knn(spot_train_uk_nl, spot_test_uk_nl, spot_train_uk_labels, k =
 ```{r}
 library(caret)
 
-confusionMatrix(as.factor(model_knn), as.factor(tele_test_labels), positive = "1")
+confusionMatrix(as.factor(model_knn_uk), as.factor(spot_test_uk_labels), positive = "1")
 
 ```
 
-Similar accuracy to LR model, but much lower Kappa.
+Lower accuracy and Kappa (57%) than LR model, but still very strong.
 
 ## Build ANN Model
 
 ```{r}
 library(neuralnet)
 
-model_ann <- neuralnet(yyes ~ ., data = tele_train, hidden = 1)
-plot(model_ann)
+model_ann_uk <- neuralnet(target ~ ., data = spot_train_uk, hidden = 2)
+plot(model_ann_uk)
 
 ```
 
 ## Predict Model
 
 ```{r}
-pred_ann_simple <- predict(model_ann, tele_test)
-summary(pred_ann_simple)
+pred_ann_uk <- predict(model_ann_uk, spot_test_uk)
+summary(pred_ann_uk)
 
-ann_bin_simple <- ifelse(pred_ann_simple >= 0.25, 1, 0)
+bin_ann_uk <- ifelse(pred_ann_uk >= 0.5, 1, 0)
 library(caret)
-confusionMatrix(as.factor(ann_bin_simple), as.factor(tele_test$yyes), positive = "1")
+confusionMatrix(as.factor(bin_ann_uk), as.factor(spot_test_uk$target), positive = "1")
 
 
 ```
 
-Similar to LR model: very strong accuracy and Kappa.
+Even better Kappa than Logistic Regression.
+
+ANN Kappa with one neuron 64%. ANN Kappa with two neurons: 67%. ANN Kappa with three neurons: 66%.
+
+Adding additional neurons and/or layers does not improve the Kappa. We are using two neurons.
 
 ## Build Decision Tree
 
 ```{r}
 library(C50)
-tele_tree <- C5.0(as.factor(yyes) ~ ., data = tele_train)
+spot_tree_uk <- C5.0(as.factor(target) ~ ., data = spot_train_uk)
 
-plot(tele_tree)
-summary(tele_tree)
+plot(spot_tree_uk)
+summary(spot_tree_uk)
 ```
 
 ## Predict and Evaluate
 
 ```{r}
-pred_tree <- predict(tele_tree, tele_test)
+pred_tree_uk <- predict(spot_tree_uk, spot_test_uk)
 
 library(caret)
-confusionMatrix(as.factor(pred_tree), as.factor(tele_test$yyes), positive = "1")
+confusionMatrix(as.factor(pred_tree_uk), as.factor(spot_test_uk$target), positive = "1")
 
 ```
 
-Slightly weaker Kappa, but still reasonably strong and better than KNN.
+Kappa still greater than 60%, but lower than ANN.
 
 ## Build Random Forest
 
 ```{r}
 #install.packages("randomForest")
 library(randomForest)
-tele_random <- randomForest(as.factor(yyes) ~ ., data = tele_train)
+spot_forest_uk <- randomForest(as.factor(target) ~ ., data = spot_train_uk)
 
-plot(tele_random)
-summary(tele_random)
+plot(spot_forest_uk)
+summary(spot_forest_uk)
 ```
 
 ## Predict and Evaluate
 
 ```{r}
-pred_random <- predict(tele_random, tele_test)
+pred_forest_uk <- predict(spot_forest_uk, spot_test_uk)
 
 library(caret)
-confusionMatrix(as.factor(pred_random), as.factor(tele_test$yyes), positive = "1")
+confusionMatrix(as.factor(pred_forest_uk), as.factor(spot_test_uk$target), positive = "1")
 
 ```
 
-Similar accuracy and Kappa to decision tree.
+**Random forest has the highest Kappa of any individual model at almost 70%.**
 
 ## Combine models into new data frame
 
 ```{r}
-pred_combined <- data.frame(pred_lr, model_knn, pred_ann_simple, pred_tree, pred_random, tele_test$yyes)
+pred_comb_uk <- data.frame(pred_lr_uk, model_knn_uk, pred_ann_uk, pred_tree_uk, pred_forest_uk, spot_test_uk$target)
 
-str(pred_combined)
-summary(pred_combined)
+str(pred_comb_uk)
+summary(pred_comb_uk)
 ```
 
 ## New Test and Train Data Sets
 
 ```{r}
-set.seed(9890)
-test_set_comb <- sample(1:nrow(pred_combined), 0.3*nrow(pred_combined))
+set.seed(12345)
+test_set_comb <- sample(1:nrow(pred_comb_uk), 0.25*nrow(pred_comb_uk))
 
-# Create a train set and test set
-# First the predictors - all columns except the yyes column
-tele_test_comb <- pred_combined[test_set, ]
-tele_train_comb <- pred_combined[-test_set, ]
+# Using 25% for the test data produces a much more interesting model than >= 30% test data size.
+
+spot_test_comb <- pred_comb_uk[test_set_comb, ]
+spot_train_comb <- pred_comb_uk[-test_set_comb, ]
 
 ```
 
-## Build Stacked Model Tree
+## Build Stacked Model
 
 ```{r}
 library(C50)
-tele_tree_comb <- C5.0(as.factor(tele_test.yyes) ~ ., data = tele_train_comb)
+spot_tree_comb <- C5.0(as.factor(spot_test_uk.target) ~ ., data = spot_train_comb)
 
-plot(tele_tree_comb)
-summary(tele_tree_comb)
+plot(spot_tree_comb)
+summary(spot_tree_comb)
 ```
 
-Only two individual models are coming through in the stacked model: random forest and ANN.
+The stacked-model decision tree is telling us the following:
 
+- If the Random Forest model predicts a song will be a hit, this is all we need to know.
+- If the Random Forest says no, 
 ## Predict and Evaluate
 
 ```{r}
-pred_tree_comb <- predict(tele_tree_comb, tele_test_comb)
+pred_tree_comb <- predict(spot_tree_comb, spot_test_comb)
 
 library(caret)
-confusionMatrix(as.factor(pred_tree_comb), as.factor(tele_test_comb$tele_test.yyes), positive = "1")
+confusionMatrix(as.factor(pred_tree_comb), as.factor(spot_test_comb$spot_test_uk.target), positive = "1")
 
 ```
 
-The combined model has slightly higher accuracy than the others, but a much lower Kappa. This is not an ideal result, but it remains the same no matter how many times I change the seed and re-run.
+The stacked model is extremely strong and has a **Kappa of almost 71%**, greater than each individual model.
 
 ## Incorporate Cost Matrix
 
