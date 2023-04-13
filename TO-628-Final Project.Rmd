@@ -144,7 +144,7 @@ summary(model_lr)
 
 ```
 
-Nine variables are significant: 
+Ten variables are significant: 
 
 - Danceability
 - Energy
@@ -152,16 +152,16 @@ Nine variables are significant:
 - Mode
 - Acousticness
 - Instramentalness
-- Liveness
 - Valence
+- Tempo
+- Duration_ms
 - Time_signature
 
-Six variables are not significant:
+Five variables are not significant:
 
 - Key
 - Speechiness
-- Tempo
-- Duration_ms
+- Liveness
 - Chorus Hit
 - Sections
 
@@ -185,15 +185,15 @@ confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive 
 
 ```
 
-The model has an accuracy of 82.43% and a Kappa of 64.74%.
+The model has an accuracy of 82% and a Kappa of 64%.
 
-## Sensitivity analysis
+## Flag and Split Popular Artists
 ```{r}
 spot2 <- read.csv("spotify_hits.csv")
 criteria <- read.csv("popular_artists.csv", header = FALSE)
 criteria_vec <- as.character(criteria$V1)
 
-#Explore top artists
+# Explore top artists
 head(sort(table(spot2$artist), decreasing = TRUE), 20)
 
 spot2$uri <- NULL
@@ -201,25 +201,29 @@ spot2$uri <- NULL
 # Delete the tracks field because it's essentially individual IDs
 spot2$track <- NULL
 
-# creating dummy variable to distinguish popular and less well-known artists
-spot2$artist_popularity <- 0
-spot2$artist_popularity[spot2$artist %in% criteria_vec] <- 1
+# Creating dummy variable to distinguish popular and lesser-known artists
+spot2$artist_popularity <- ifelse(spot2$artist %in% criteria_vec, 1, 0)
 
 # Deleting artist - too many unique values
 spot2$artist <- NULL
 
-#Try running without popular artists included
-#spot2 <- spot2[spot2$artist_popularity == 0, ]
-#spot2$artist_popularity <-NULL
+# Split Popular and Lesser-Known Artists
+spot_unknown <- spot2[spot2$artist_popularity == 0, ]
+spot_popular <- spot2[spot2$artist_popularity == 1, ]
 
-str(spot2)
-summary(spot2)
+spot_unknown$artist_popularity <- NULL
+spot_popular$artist_popularity <- NULL 
+
+str(spot_unknown)
+summary(spot_unknown)
 
 ```
 
-## Randomize the Data Set
+Popular artists are popular for a variety of reasons that are entirely separate from this data set -- marketing, exposure, appearance, connections, etc. -- that it does not make sense to run a predictive model on the data we have. However, among *unknown* artists who have limited existing support, it is far more important to predict who will hit and who will flop. This group of artists has the highest volatility but potentially the highest payoff, so we will focus here.
+
+## Randomize the Uknown Artists
 ```{r}
-spot2_random <- spot2[sample(1:nrow(spot2)), ]
+spot_uk_random <- spot_unknown[sample(1:nrow(spot_unknown)), ]
 ```
 
 ## Normalize the Data
@@ -228,36 +232,47 @@ normalize <- function(x) {
   return ((x - min(x)) / (max(x) - min(x)))
 }
 
-spot2_norm <- as.data.frame(lapply(spot2_random, normalize))
+spot_uk_norm <- as.data.frame(lapply(spot_uk_random, normalize))
 ```
 
 ## Split Test and Train
 ```{r}
 set.seed(12345)
-test_set <- sample(1:nrow(spot2_norm), 0.5*nrow(spot2_norm))
-spot_test <- spot2_norm[test_set, ]
-spot_train <- spot2_norm[-test_set, ]
+test_set_uk <- sample(1:nrow(spot_uk_norm), 0.5*nrow(spot_uk_norm))
+spot_test_uk <- spot_uk_norm[test_set_uk, ]
+spot_train_uk <- spot_uk_norm[-test_set_uk, ]
 
 ```
 
-Created spot_test and spot_train with a 50/50 random sample.
+Created spot_test_uk and spot_train_uk with a 50/50 random sample.
 
 ## Build Regression Model
 ```{r}
-model_lr <- glm(target ~ ., family = "binomial", data = spot_train)
-summary(model_lr)
+model_lr_uk <- glm(target ~ ., family = "binomial", data = spot_train_uk)
+summary(model_lr_uk)
 
 ```
 
+Fewer variables are significant for unknown artists, but they reach higher confidence levels.
+
+- Danceability
+- Energy
+- Loudness
+- Mode
+- Speechiness
+- Acousticness
+- Instrumentalness
+- Time_signature
+
 ## Predict Test Data
 ```{r}
-spot_pred <- predict(model_lr, spot_test, type = "response")
+spot_pred_uk <- predict(model_lr_uk, spot_test_uk, type = "response")
 
-summary(spot_pred)
+summary(spot_pred_uk)
 
-spot_bin_pred <- ifelse(spot_pred >= 0.5, 1, 0)
+spot_bin_pred_uk <- ifelse(spot_pred_uk >= 0.5, 1, 0)
 
-table(spot_bin_pred)
+table(spot_bin_pred_uk)
 
 ```
  
@@ -265,7 +280,7 @@ table(spot_bin_pred)
 ## Evaluate Model
 ```{r}
 library(caret)
-confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive = "1")
+confusionMatrix(as.factor(spot_bin_pred_uk), as.factor(spot_test_uk$target), positive = "1")
 
 ```
 
