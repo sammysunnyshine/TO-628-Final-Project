@@ -187,6 +187,8 @@ confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive 
 
 The model has an accuracy of 82% and a Kappa of 64%.
 
+# Final Deliverable
+
 ## Flag and Split Popular Artists
 ```{r}
 spot2 <- read.csv("spotify_hits.csv")
@@ -403,7 +405,7 @@ summary(pred_comb_uk)
 
 ```{r}
 set.seed(12345)
-test_set_comb <- sample(1:nrow(pred_comb_uk), 0.25*nrow(pred_comb_uk))
+test_set_comb <- sample(1:nrow(pred_comb_uk), 0.3*nrow(pred_comb_uk))
 
 # Using 25% for the test data produces a much more interesting model than >= 30% test data size.
 
@@ -422,10 +424,18 @@ plot(spot_tree_comb)
 summary(spot_tree_comb)
 ```
 
-The stacked-model decision tree is telling us the following:
+The stacked-model decision tree (with larger test data) is telling us the following:
 
-- If the Random Forest model predicts a song will be a hit, this is all we need to know.
-- If the Random Forest says no, 
+- If the Random Forest model predicts a song will be a hit, it will be a hit; otherwise, it will not be. Nothing else matters.
+
+The stacked-model decision tree (with test data set at 25%) is telling us the following:
+
+- If the random forest model predicts a song will be a hit, this is all we need to know.
+- If the random forest says no, we have to move onto the ANN model to confirm. If ANN predicts a value less than 0.36, the song will be a flop.
+- If the random forest says no and ANN predicts greater than 0.36, we have to move onto the decision tree to confirm.
+- If the decision tree says no, the only way a song can be predicted to be a hit is if it has a low predicted ANN value between approx. 0.36 and 0.37.
+- ....
+
 ## Predict and Evaluate
 
 ```{r}
@@ -436,34 +446,37 @@ confusionMatrix(as.factor(pred_tree_comb), as.factor(spot_test_comb$spot_test_uk
 
 ```
 
-The stacked model is extremely strong and has a **Kappa of almost 71%**, greater than each individual model.
+The stacked model is extremely strong and has a **Kappa of 67%**, better than each individual model.
 
 ## Incorporate Cost Matrix
 
-There are many more false negatives in the prediction set than false positives.
+There are approximately the same number of false negatives and false positives in the prediction.
 
-A false positive in this case represents people we predict will respond, so we call them, but they don't respond. The loss here is simply the call operator's time, which would be equivalent if we had no predictive model at all. This is not a big loss.
+A false positive in this case represents songs we predict will be hits but they flop. The loss here is the amount of money invested in the production of these songs and the reputation hit from having recommended their production. Even though the average cost to produce a song is $2,600, this is bare minimum. Add in all the marketing and other support money, and the reputational damage, and this could be a bad situation. We want to minimize these errors.
 
-A false negative in this case represents people we predict will not respond, so we don't call them, but they would have responded. The loss here is a substantial number of conversions (951), so that is a problem. **We should minimized false negatives.**
+A false negative in this case represents songs we predict will be flops but they ultimately become hits. The loss here is an opportunity cost -- the result of a decision not taken. While a massive hit can produce a lot of money for those involved, as Sanjeev says, nobody's ever been fired for that kind of mistake. While not ideal, we'd prefer these mistakes to up-front financial losses.
+
+We estimate a false positive is five-times worse than a false negative.
 
 ```{r}
-error_cost <- matrix(c(0, 1, 5, 0), nrow = 2)
+error_cost <- matrix(c(0, 5, 1, 0), nrow = 2)
 error_cost
 
-error_model <- C5.0(as.factor(tele_test.yyes) ~ ., data = tele_train_comb, costs = error_cost)
+model_error_uk <- C5.0(as.factor(spot_test_uk.target) ~ ., data = spot_train_comb, costs = error_cost)
 
-errorpred <- predict(error_model, tele_test_comb)
+pred_error_uk <- predict(model_error_uk, spot_test_comb)
 
-confusionMatrix(as.factor(errorpred), as.factor(tele_test_comb$tele_test.yyes), positive = "1")
+confusionMatrix(as.factor(pred_error_uk), as.factor(spot_test_comb$spot_test_uk.target), positive = "1")
 ```
+
+The Kappa of the stacked model is substantially reduced when we add the error costs -- we need to fix this.
 
 ## Conclusion
 
-Overall, building a stacked "model of models" did make the overall model stronger. While the Logistic Regression model was unusually strong and had a Kappa greater than that of the stacked model, the stacked model's Kappa was better than all others.
+We need to find a way to do some of the following:
 
-Additionally, incorporating the error-cost matrix allows us to weight the types of errors, which ultimately allows us to capture the highest number of conversions possible by calling the right people.
-
-
-
+- Improve some of the individual models to have them come through in the stacked model
+- Change seed numbers and/or sample sizes and hope we get lucky with a more interesting model (doubtful)
+- **Improve the Kappa of our stacked model**
 
 
