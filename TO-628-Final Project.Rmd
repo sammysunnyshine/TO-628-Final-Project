@@ -242,6 +242,17 @@ test_set_uk <- sample(1:nrow(spot_uk_norm), 0.5*nrow(spot_uk_norm))
 spot_test_uk <- spot_uk_norm[test_set_uk, ]
 spot_train_uk <- spot_uk_norm[-test_set_uk, ]
 
+spot_test_uk_nl <- spot_uk_norm[test_set_uk, -match("target", names(spot_uk_norm))]
+spot_train_uk_nl <- spot_uk_norm[-test_set_uk, -match("target", names(spot_uk_norm))]
+
+spot_test_uk_nl
+
+# Now the response (aka Labels) - only the target column
+spot_test_uk_labels <- spot_uk_norm[test_set, "target"]
+spot_train_uk_labels <- spot_uk_norm[-test_set, "target"]
+
+spot_test_uk_labels
+
 ```
 
 Created spot_test_uk and spot_train_uk with a 50/50 random sample.
@@ -275,7 +286,6 @@ spot_bin_pred_uk <- ifelse(spot_pred_uk >= 0.5, 1, 0)
 table(spot_bin_pred_uk)
 
 ```
- 
 
 ## Evaluate Model
 ```{r}
@@ -283,4 +293,171 @@ library(caret)
 confusionMatrix(as.factor(spot_bin_pred_uk), as.factor(spot_test_uk$target), positive = "1")
 
 ```
+
+Our initial Logistic Regression model for unknown artists is very strong: accuracy of 82% and **Kappa of 62%**.
+
+
+## Build KNN Model and Predict
+
+```{r}
+library(class)
+
+model_knn_uk <- knn(spot_train_uk_nl, spot_test_uk_nl, spot_train_uk_labels, k = 70)
+
+```
+
+## Evaluate model
+```{r}
+library(caret)
+
+confusionMatrix(as.factor(model_knn), as.factor(tele_test_labels), positive = "1")
+
+```
+
+Similar accuracy to LR model, but much lower Kappa.
+
+## Build ANN Model
+
+```{r}
+library(neuralnet)
+
+model_ann <- neuralnet(yyes ~ ., data = tele_train, hidden = 1)
+plot(model_ann)
+
+```
+
+## Predict Model
+
+```{r}
+pred_ann_simple <- predict(model_ann, tele_test)
+summary(pred_ann_simple)
+
+ann_bin_simple <- ifelse(pred_ann_simple >= 0.25, 1, 0)
+library(caret)
+confusionMatrix(as.factor(ann_bin_simple), as.factor(tele_test$yyes), positive = "1")
+
+
+```
+
+Similar to LR model: very strong accuracy and Kappa.
+
+## Build Decision Tree
+
+```{r}
+library(C50)
+tele_tree <- C5.0(as.factor(yyes) ~ ., data = tele_train)
+
+plot(tele_tree)
+summary(tele_tree)
+```
+
+## Predict and Evaluate
+
+```{r}
+pred_tree <- predict(tele_tree, tele_test)
+
+library(caret)
+confusionMatrix(as.factor(pred_tree), as.factor(tele_test$yyes), positive = "1")
+
+```
+
+Slightly weaker Kappa, but still reasonably strong and better than KNN.
+
+## Build Random Forest
+
+```{r}
+#install.packages("randomForest")
+library(randomForest)
+tele_random <- randomForest(as.factor(yyes) ~ ., data = tele_train)
+
+plot(tele_random)
+summary(tele_random)
+```
+
+## Predict and Evaluate
+
+```{r}
+pred_random <- predict(tele_random, tele_test)
+
+library(caret)
+confusionMatrix(as.factor(pred_random), as.factor(tele_test$yyes), positive = "1")
+
+```
+
+Similar accuracy and Kappa to decision tree.
+
+## Combine models into new data frame
+
+```{r}
+pred_combined <- data.frame(pred_lr, model_knn, pred_ann_simple, pred_tree, pred_random, tele_test$yyes)
+
+str(pred_combined)
+summary(pred_combined)
+```
+
+## New Test and Train Data Sets
+
+```{r}
+set.seed(9890)
+test_set_comb <- sample(1:nrow(pred_combined), 0.3*nrow(pred_combined))
+
+# Create a train set and test set
+# First the predictors - all columns except the yyes column
+tele_test_comb <- pred_combined[test_set, ]
+tele_train_comb <- pred_combined[-test_set, ]
+
+```
+
+## Build Stacked Model Tree
+
+```{r}
+library(C50)
+tele_tree_comb <- C5.0(as.factor(tele_test.yyes) ~ ., data = tele_train_comb)
+
+plot(tele_tree_comb)
+summary(tele_tree_comb)
+```
+
+Only two individual models are coming through in the stacked model: random forest and ANN.
+
+## Predict and Evaluate
+
+```{r}
+pred_tree_comb <- predict(tele_tree_comb, tele_test_comb)
+
+library(caret)
+confusionMatrix(as.factor(pred_tree_comb), as.factor(tele_test_comb$tele_test.yyes), positive = "1")
+
+```
+
+The combined model has slightly higher accuracy than the others, but a much lower Kappa. This is not an ideal result, but it remains the same no matter how many times I change the seed and re-run.
+
+## Incorporate Cost Matrix
+
+There are many more false negatives in the prediction set than false positives.
+
+A false positive in this case represents people we predict will respond, so we call them, but they don't respond. The loss here is simply the call operator's time, which would be equivalent if we had no predictive model at all. This is not a big loss.
+
+A false negative in this case represents people we predict will not respond, so we don't call them, but they would have responded. The loss here is a substantial number of conversions (951), so that is a problem. **We should minimized false negatives.**
+
+```{r}
+error_cost <- matrix(c(0, 1, 5, 0), nrow = 2)
+error_cost
+
+error_model <- C5.0(as.factor(tele_test.yyes) ~ ., data = tele_train_comb, costs = error_cost)
+
+errorpred <- predict(error_model, tele_test_comb)
+
+confusionMatrix(as.factor(errorpred), as.factor(tele_test_comb$tele_test.yyes), positive = "1")
+```
+
+## Conclusion
+
+Overall, building a stacked "model of models" did make the overall model stronger. While the Logistic Regression model was unusually strong and had a Kappa greater than that of the stacked model, the stacked model's Kappa was better than all others.
+
+Additionally, incorporating the error-cost matrix allows us to weight the types of errors, which ultimately allows us to capture the highest number of conversions possible by calling the right people.
+
+
+
+
 
