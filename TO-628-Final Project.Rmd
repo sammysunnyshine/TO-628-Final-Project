@@ -212,7 +212,7 @@ summary(spot_unknown)
 
 Popular artists are popular for a variety of reasons that are entirely separate from this data set -- marketing, exposure, appearance, connections, etc. -- that it does not make sense to run a predictive model on the data we have. However, among *unknown* artists who have limited existing support, it is far more important to predict who will hit and who will flop. This group of artists has the highest volatility but potentially the highest payoff, so we will focus here.
 
-## Randomize the Uknown Artists
+## Randomize the Unknown Artists
 ```{r}
 spot_uk_random <- spot_unknown[sample(1:nrow(spot_unknown)), ]
 ```
