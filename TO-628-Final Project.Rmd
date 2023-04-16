@@ -128,7 +128,7 @@ spot_norm <- as.data.frame(lapply(spot_random, normalize))
 
 ## Split Test and Train
 ```{r}
-set.seed(12345)
+set.seed(13090890)
 test_set <- sample(1:nrow(spot_norm), 0.5*nrow(spot_norm))
 spot_test <- spot_norm[test_set, ]
 spot_train <- spot_norm[-test_set, ]
@@ -144,7 +144,7 @@ summary(model_lr)
 
 ```
 
-Ten variables are significant: 
+Seven variables are significant: 
 
 - Danceability
 - Energy
@@ -152,18 +152,7 @@ Ten variables are significant:
 - Mode
 - Acousticness
 - Instramentalness
-- Valence
-- Tempo
-- Duration_ms
 - Time_signature
-
-Five variables are not significant:
-
-- Key
-- Speechiness
-- Liveness
-- Chorus Hit
-- Sections
 
 ## Predict Test Data
 ```{r}
@@ -171,12 +160,12 @@ spot_pred <- predict(model_lr, spot_test, type = "response")
 
 summary(spot_pred)
 
-spot_bin_pred <- ifelse(spot_pred >= 0.5, 1, 0)
+spot_bin_pred <- ifelse(spot_pred >= 0.5, 1, 0) # Given the data is relatively balanced, we use 50% threshold
 
 table(spot_bin_pred)
 
 ```
-Based on a 50% prediction threshold, the model predicts that of the `r 1253 + 1653` observations in the test data set, approximately `r round(100*1653/(1283+1653),0)` percent will be hits. 
+Based on a 50% prediction threshold, the model predicts that of the `r 1341 + 1595` observations in the test data set, approximately `r round(100*1595/(1341+1595),0)` percent will be hits. 
 
 ## Evaluate Model
 ```{r}
@@ -185,7 +174,7 @@ confusionMatrix(as.factor(spot_bin_pred), as.factor(spot_test$target), positive 
 
 ```
 
-The model has an accuracy of 82% and a Kappa of 64%.
+The model has an accuracy of 82% and a Kappa of 63%.
 
 # Final Deliverable
 
@@ -241,7 +230,7 @@ summary(spot_uk_norm)
 
 ## Split Test and Train
 ```{r}
-set.seed(12345)
+set.seed(13090890)
 test_set_uk <- sample(1:nrow(spot_uk_norm), 0.5*nrow(spot_uk_norm))
 spot_test_uk <- spot_uk_norm[test_set_uk, ]
 spot_train_uk <- spot_uk_norm[-test_set_uk, ]
@@ -266,7 +255,7 @@ summary(model_lr_uk)
 
 ```
 
-Fewer variables are significant for unknown artists, but they reach higher confidence levels.
+Mostly the same variables are significant for unknown artists, but instead of Time_signature, Liveness is significant.
 
 - Danceability
 - Energy
@@ -275,29 +264,30 @@ Fewer variables are significant for unknown artists, but they reach higher confi
 - Speechiness
 - Acousticness
 - Instrumentalness
-- Time_signature
+- Liveness
 
-## Predict Test Data
+### Predict Test Data
 ```{r}
 pred_lr_uk <- predict(model_lr_uk, spot_test_uk, type = "response")
 
 summary(pred_lr_uk)
 
-bin_pred_lr_uk <- ifelse(pred_lr_uk >= 0.5, 1, 0)
+bin_pred_lr_uk <- ifelse(pred_lr_uk >= 0.5, 1, 0) # Given the data is relatively balanced, we use 50% threshold
 
 table(bin_pred_lr_uk)
 
 ```
 
-## Evaluate Model
+Based on a 50% prediction threshold, the model predicts that of the `r 1379 + 1041` observations in the test data set, approximately `r round(100*1041/(1379 + 1041),0)` percent will be hits. 
+
+### Evaluate Model
 ```{r}
 library(caret)
 confusionMatrix(as.factor(bin_pred_lr_uk), as.factor(spot_test_uk$target), positive = "1")
 
 ```
 
-Our initial Logistic Regression model for unknown artists is very strong: accuracy of 82% and **Kappa of 62%**.
-
+Our initial Logistic Regression model for unknown artists is very strong: accuracy of 81% and **Kappa of 62%**.
 
 ## Build KNN Model and Predict
 
@@ -308,7 +298,7 @@ model_knn_uk <- knn(spot_train_uk_nl, spot_test_uk_nl, spot_train_uk_labels, k =
 
 ```
 
-## Evaluate model
+### Evaluate model
 ```{r}
 library(caret)
 
@@ -316,7 +306,29 @@ confusionMatrix(as.factor(model_knn_uk), as.factor(spot_test_uk_labels), positiv
 
 ```
 
-Lower accuracy and Kappa (57%) than LR model, but still very strong.
+Lower accuracy and Kappa than LR model, but still very strong.
+
+K = 100; Acc 77.3%, Kappa 54.9%
+
+K = 85; Acc 77.4%, Kappa 54.9%
+
+**K = 70; Acc 77.5%, Kappa 55.1%**
+
+K = 50; Acc 77.4%, Kappa 54.8%
+
+K = 35; Acc 77.6%, Kappa 55.6%
+
+K = 20; Acc 77.8%, Kappa 55.3%
+
+K = 10; Acc 77.2%, Kappa 53.8%
+
+K = 5; Acc 76.4%, Kappa 52.0%
+
+
+
+While the above numbers will change each time the model runs, they are demonstrative of the differences among K values.
+
+We started with K = 70 (approx. square root of row count). Given all the Kappas are very similar, and we prefer a higher K to avoid overfitting, we will go with K = 70.
 
 ## Build ANN Model
 
@@ -328,24 +340,26 @@ plot(model_ann_uk)
 
 ```
 
-## Predict Model
+### Predict and Evaluate
 
 ```{r}
 pred_ann_uk <- predict(model_ann_uk, spot_test_uk)
 summary(pred_ann_uk)
 
-bin_ann_uk <- ifelse(pred_ann_uk >= 0.5, 1, 0)
+bin_ann_uk <- ifelse(pred_ann_uk >= 0.5, 1, 0) # Given the data is relatively balanced, we use 50% threshold
 library(caret)
 confusionMatrix(as.factor(bin_ann_uk), as.factor(spot_test_uk$target), positive = "1")
 
 
 ```
 
-Even better Kappa than Logistic Regression.
+Even better Kappa than Logistic Regression. While the following numbers will change each time the model runs, they are demonstrative of the differences among neuron combinations.
 
-ANN Kappa with one neuron 64%. ANN Kappa with two neurons: 67%. ANN Kappa with three neurons: 66%.
+ANN Kappa with one neuron: 64%. ANN Kappa with two neurons: 67%. ANN Kappa with three neurons: 66%. ANN Kappa with (3, 2, 1) neurons: 63%. Other multi-layer attempts were all below 64%.
 
-Adding additional neurons and/or layers does not improve the Kappa. We are using two neurons.
+Adding additional neurons and layers does not materially and consistently improve the Kappa of this model; we ran each combination several times and got a range of Kappas between 63% and 67%, but no combination was ever consistently the best.
+
+**Because two neurons gave us the highest individual Kappa, we will go forward with that number.**
 
 ## Build Decision Tree
 
@@ -357,7 +371,7 @@ plot(spot_tree_uk)
 summary(spot_tree_uk)
 ```
 
-## Predict and Evaluate
+### Predict and Evaluate
 
 ```{r}
 pred_tree_uk <- predict(spot_tree_uk, spot_test_uk)
@@ -380,7 +394,7 @@ plot(spot_forest_uk)
 summary(spot_forest_uk)
 ```
 
-## Predict and Evaluate
+### Predict and Evaluate
 
 ```{r}
 pred_forest_uk <- predict(spot_forest_uk, spot_test_uk)
@@ -390,9 +404,9 @@ confusionMatrix(as.factor(pred_forest_uk), as.factor(spot_test_uk$target), posit
 
 ```
 
-**Random forest has the highest Kappa of any individual model at almost 70%.**
+**Random forest has the highest Kappa of any individual model at almost 68%.** Some trials reached as high as almost 70%.
 
-## Combine models into new data frame
+## Combine Models
 
 ```{r}
 pred_comb_uk <- data.frame(pred_lr_uk, model_knn_uk, pred_ann_uk, pred_tree_uk, pred_forest_uk, spot_test_uk$target)
@@ -401,13 +415,11 @@ str(pred_comb_uk)
 summary(pred_comb_uk)
 ```
 
-## New Test and Train Data Sets
+### New Test and Train Data Sets
 
 ```{r}
-set.seed(12345)
+set.seed(13090890)
 test_set_comb <- sample(1:nrow(pred_comb_uk), 0.3*nrow(pred_comb_uk))
-
-# Using 25% for the test data produces a much more interesting model than >= 30% test data size.
 
 spot_test_comb <- pred_comb_uk[test_set_comb, ]
 spot_train_comb <- pred_comb_uk[-test_set_comb, ]
@@ -424,19 +436,11 @@ plot(spot_tree_comb)
 summary(spot_tree_comb)
 ```
 
-The stacked-model decision tree (with larger test data) is telling us the following:
+The stacked-model decision tree is telling us the following:
 
-- If the Random Forest model predicts a song will be a hit, it will be a hit; otherwise, it will not be. Nothing else matters.
+If the Random Forest model predicts a song will be a hit, the stacked model will predict it will be a hit; otherwise, it will not. Nothing matters other than the random forest.
 
-The stacked-model decision tree (with test data set at 25%) is telling us the following:
-
-- If the random forest model predicts a song will be a hit, this is all we need to know.
-- If the random forest says no, we have to move onto the ANN model to confirm. If ANN predicts a value less than 0.36, the song will be a flop.
-- If the random forest says no and ANN predicts greater than 0.36, we have to move onto the decision tree to confirm.
-- If the decision tree says no, the only way a song can be predicted to be a hit is if it has a low predicted ANN value between approx. 0.36 and 0.37.
-- ....
-
-## Predict and Evaluate
+### Predict and Evaluate
 
 ```{r}
 pred_tree_comb <- predict(spot_tree_comb, spot_test_comb)
@@ -446,20 +450,20 @@ confusionMatrix(as.factor(pred_tree_comb), as.factor(spot_test_comb$spot_test_uk
 
 ```
 
-The stacked model is extremely strong and has a **Kappa of 67%**, better than each individual model.
+The stacked model is extremely strong and has a **Kappa of 68%**, better than each individual model.
 
 ## Incorporate Cost Matrix
 
 There are approximately the same number of false negatives and false positives in the prediction.
 
-A false positive in this case represents songs we predict will be hits but they flop. The loss here is the amount of money invested in the production of these songs and the reputation hit from having recommended their production. Even though the average cost to produce a song is $2,600, this is bare minimum. Add in all the marketing and other support money, and the reputational damage, and this could be a bad situation. We want to minimize these errors.
+A false positive in this case represents songs we predict will be hits but they flop. The loss here is the amount of money invested in the production of these songs and the reputation hit from having recommended their production. Even though the average cost to produce a song is only approx. $2.5K, this is bare minimum. Add in all the marketing and other support money, and the reputational damage if a promoted song fails, and this could result in a substantial loss. We want to minimize these errors.
 
 A false negative in this case represents songs we predict will be flops but they ultimately become hits. The loss here is an opportunity cost -- the result of a decision not taken. While a massive hit can produce a lot of money for those involved, as Sanjeev says, nobody's ever been fired for that kind of mistake. While not ideal, we'd prefer these mistakes to up-front financial losses.
 
-We estimate a false positive is five-times worse than a false negative.
+We estimate a false positive is twice as damaging as a false negative.
 
 ```{r}
-error_cost <- matrix(c(0, 5, 1, 0), nrow = 2)
+error_cost <- matrix(c(0, 2, 1, 0), nrow = 2)
 error_cost
 
 model_error_uk <- C5.0(as.factor(spot_test_uk.target) ~ ., data = spot_train_comb, costs = error_cost)
@@ -469,14 +473,9 @@ pred_error_uk <- predict(model_error_uk, spot_test_comb)
 confusionMatrix(as.factor(pred_error_uk), as.factor(spot_test_comb$spot_test_uk.target), positive = "1")
 ```
 
-The Kappa of the stacked model is substantially reduced when we add the error costs -- we need to fix this.
+The Kappa of the stacked model has been reduced slightly, to around 65-66%, but this is still very strong. However, we also ran trials in which we assumed a much heavier cost to false positives, and unfortunately the Kappa dropped substantially to around 45%. A larger the negative impact of one error type vs. the other would make us less confident in using this model to predict song success.
 
 ## Conclusion
 
-We need to find a way to do some of the following:
-
-- Improve some of the individual models to have them come through in the stacked model
-- Change seed numbers and/or sample sizes and hope we get lucky with a more interesting model (doubtful)
-- **Improve the Kappa of our stacked model**
-
+**NEED CONCLUSION**
 
